@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1557824543649.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3591016256",
+    "id" : "D1B08B4D",
+    "lastKnownWriteTime" : 1557746158,
+    "last_content_update" : 1557746158,
+    "path" : "/mnt/GREENWOOD_JBOD1/GREENWOOD_BACKUP/home/kevin.mcgregor/research/pitman_yor/basic_py/R/py_functions.R",
+    "project_path" : "R/py_functions.R",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
