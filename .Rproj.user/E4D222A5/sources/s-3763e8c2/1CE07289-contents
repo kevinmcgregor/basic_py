@@ -1,6 +1,6 @@
 # Testing PY process function
 
-source("~/research/pitman_yor/basic_py/py_functions.R")
+source("~/research/pitman_yor/basic_py/R/py_functions.R")
 
 # Number of samples
 n.s <- 10000
@@ -41,11 +41,11 @@ test.fr$s.c/sum(test.fr$s.c)
 n.top <- 1000
 m <- 10
 n <- rep(n.top, m)
-conc.top <- 0.5
+conc.top <- 5 #0.5
 dsct.top <- 0.5
 # Looping over different levels for lower-level params
 conc.vals <- c(0.1, 1, 10, 100)
-dsct.vals <- c(0.1, 0.5, 0.9)
+dsct.vals <- c(0.1, 0.25, 0.5, 0.75, 0.9)
 
 lc <- length(conc.vals)
 ld <- length(dsct.vals)
@@ -55,13 +55,21 @@ test.hpy <- lapply(test.hpy, function(x){return(vector("list", length=ld))})
 pop.props <- vector("list", length=lc)
 pop.props <- lapply(pop.props, function(x){return(vector("list", length=ld))})
 
+# Keeping track of average number of tables (and species) in populations for each set
+# of params
+n.table <- matrix(0, lc, ld)
+n.species <- matrix(0, lc, ld)
+
 for (i in 1:lc) {
   for (j in 1:ld) {
     cat("i =", i, ", j =", j, "\n")
     conc <- rep(conc.vals[i], m)
     dsct <- rep(dsct.vals[j], m)
     
-    test.hpy[[i]][[j]] <- sample_hpy(m, n.top, n, conc.top, dsct.top, conc, dsct)
+    test.hpy[[i]][[j]] <- sample_hpy(m, n.top, n, conc.top, dsct.top, conc, dsct, quiet=TRUE)
+    n.table[i,j] <- mean(unlist(lapply(test.hpy[[i]][[j]]$pop, function(x){x$t.t})))
+    n.species[i,j] <- mean(unlist(lapply(test.hpy[[i]][[j]]$pop, 
+                                         function(x){x$t.s/test.hpy[[i]][[j]]$top$t.s})))
     
     # Comparing species distributions among top-level sample, and populations
     top.prop <- test.hpy[[i]][[j]]$top$s.c/sum(test.hpy[[i]][[j]]$top$s.c)
@@ -73,13 +81,42 @@ for (i in 1:lc) {
   }
 }
 
+# Plotting species distributions over params
 library(RColorBrewer)
 par(mfrow=c(2,2))
-d.ind <- 1
+d.ind <- 2
 
 col <- brewer.pal(9, "Set1")
 for (i in 1:lc) {
   barplot(pop.props[[i]][[d.ind]], col = col, names.arg = c("Top", paste0("Pop ", 1:m)),
           main = paste0("Conc = ", conc.vals[i], ", Dsct = ", dsct.vals[d.ind]))
 }
+
+# Plotting average pop-level table counts over params
+y.rge <- range(n.table)
+cols <- rainbow(NCOL(n.table))
+plot(n.table[,1], type="o", ylim=y.rge, lwd=2, col=cols[1], 
+     xlab="Concentration", ylab="Average number of tables",  xaxt="n",
+     cex.lab=1.3, cex.axis=1.3)
+axis(1, at=1:4, labels=conc.vals, cex.axis=1.3)
+for (i in 2:NCOL(n.table)) {
+  lines(n.table[,i], lwd=2, col=cols[i], type="o")
+}
+legend("topleft", legend=paste0("Discount = ", dsct.vals),
+       lty=1, pch=1, lwd=2, col=cols)
+
+# Plotting average pop-level species counts over params
+y.rge <- range(n.species)
+cols <- rainbow(NCOL(n.species))
+plot(n.species[,1], type="o", ylim=y.rge, lwd=2, col=cols[1], 
+     xlab="Concentration", ylab="Average number species / number top-level species",  xaxt="n",
+     cex.lab=1.3, cex.axis=1.3)
+axis(1, at=1:4, labels=conc.vals, cex.axis=1.3)
+for (i in 2:NCOL(n.species)) {
+  lines(n.species[,i], lwd=2, col=cols[i], type="o")
+}
+
+
+
+
 

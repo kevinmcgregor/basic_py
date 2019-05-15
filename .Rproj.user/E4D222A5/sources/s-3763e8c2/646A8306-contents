@@ -1,6 +1,6 @@
 # Testing Dirichlet process function
 
-source("~/research/pitman_yor/basic_py/py_functions.R")
+source("~/research/pitman_yor/basic_py/R/py_functions.R")
 
 # Number of samples
 n.s <- 1000

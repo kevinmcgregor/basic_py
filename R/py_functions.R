@@ -96,7 +96,7 @@ sample_py <- function(n.s, conc, dsct, freq=NULL) {
       p <- pmax(0, (t.c[,2]-dsct)/(i-1-dsct*t.t))
       mn <- c(rmultinom(1, 1, p))
       wh.mn <- which(mn==1)
-      samp[i] <- wh.mn
+      samp[i] <- t.c[wh.mn, 1]
       s.c[t.c[wh.mn,1]] <- s.c[t.c[wh.mn,1]] + 1
       t.c[wh.mn, 2] <- t.c[wh.mn, 2] + 1
     }
@@ -139,7 +139,7 @@ sample_hpy <- function(m, n.top, n, conc.top, dsct.top, conc, dsct, quiet=FALSE)
     if (!quiet) cat("Sampling population", i, "\n")
     pop.samp[[i]] <- sample_py(n[m], conc[m], dsct[m], top.samp$s.c/sum(top.samp$s.c))
   }
-  
+
   return(list(top=top.samp, pop=pop.samp))
 }
 
