@@ -41,7 +41,7 @@ test.fr$s.c/sum(test.fr$s.c)
 n.top <- 1000
 m <- 10
 n <- rep(n.top, m)
-conc.top <- 5 #0.5
+conc.top <- 0.5
 dsct.top <- 0.5
 # Looping over different levels for lower-level params
 conc.vals <- c(0.1, 1, 10, 100)
@@ -83,18 +83,24 @@ for (i in 1:lc) {
 
 # Plotting species distributions over params
 library(RColorBrewer)
-par(mfrow=c(2,2))
-d.ind <- 2
-
 col <- brewer.pal(9, "Set1")
-for (i in 1:lc) {
-  barplot(pop.props[[i]][[d.ind]], col = col, names.arg = c("Top", paste0("Pop ", 1:m)),
-          main = paste0("Conc = ", conc.vals[i], ", Dsct = ", dsct.vals[d.ind]))
+
+for (j in 1:ld) {
+  pdf(paste0("~/research/pitman_yor/basic_py/plots/spec_dist", j, ".pdf"), 
+      height=8, width=12)
+  par(mfrow=c(2,2))
+  for (i in 1:lc) {
+    barplot(pop.props[[i]][[j]], col = col, names.arg = c("Top", paste0("Pop ", 1:m)),
+            main = paste0("Conc = ", conc.vals[i], ", Dsct = ", dsct.vals[j]))
+  }
+  dev.off()
 }
 
 # Plotting average pop-level table counts over params
 y.rge <- range(n.table)
 cols <- rainbow(NCOL(n.table))
+pdf("~/research/pitman_yor/basic_py/plots/tab_counts.pdf",
+    height=8, width=12)
 plot(n.table[,1], type="o", ylim=y.rge, lwd=2, col=cols[1], 
      xlab="Concentration", ylab="Average number of tables",  xaxt="n",
      cex.lab=1.3, cex.axis=1.3)
@@ -104,10 +110,13 @@ for (i in 2:NCOL(n.table)) {
 }
 legend("topleft", legend=paste0("Discount = ", dsct.vals),
        lty=1, pch=1, lwd=2, col=cols)
+dev.off()
 
 # Plotting average pop-level species counts over params
 y.rge <- range(n.species)
 cols <- rainbow(NCOL(n.species))
+pdf("~/research/pitman_yor/basic_py/plots/spec_counts.pdf",
+    height=8, width=12)
 plot(n.species[,1], type="o", ylim=y.rge, lwd=2, col=cols[1], 
      xlab="Concentration", ylab="Average number species / number top-level species",  xaxt="n",
      cex.lab=1.3, cex.axis=1.3)
@@ -115,7 +124,7 @@ axis(1, at=1:4, labels=conc.vals, cex.axis=1.3)
 for (i in 2:NCOL(n.species)) {
   lines(n.species[,i], lwd=2, col=cols[i], type="o")
 }
-
+dev.off()
 
 
 
