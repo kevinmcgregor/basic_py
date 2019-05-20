@@ -59,7 +59,10 @@ sample_hpy <- function(m, n, conc.top, dsct.top, conc, dsct, quiet=FALSE) {
     }
   }
   
-  return(list(samp.pop=samp, samp.top=samp.top, tab=tab, t.t=t.t, n.s=n.s))
+  # Number of samples in top level
+  n.samp <- sum(samp.top)
+  
+  return(list(samp.pop=samp, samp.top=samp.top, tab=tab, t.tab=t.t, n.sp=n.s, n.samp=n.samp))
 }
 
 #' Sample from top-level process
@@ -104,4 +107,34 @@ sample_local <- function(tab, dsct) {
   p <- (tab[,2]-dsct)/(n.s-dsct*t.t)
   return(sample(t.t, 1, prob=p))
 }
+
+#' Get expected number of tables (based on approximation in Buntine paper)
+#' @note Buntine: "a" is discount, "b" is concentration
+#' @note Assumes n, concentration >> discount
+#' 
+#' @param n Positive integer specifying the sample size
+#' @param conc Concentration parameter.  Must be greater than -dsct
+#' @param dsct Discount parameter.  Must be between 0 and 1
+#'
+#' @return
+#' @export
+#'
+#' @examples
+expected_tables <- function(n, conc, dsct, method=c("approximate", "exact")) {
+  method <- match.arg(method)
+  if (method=="approximate") {
+    r <- conc/dsct*(1+n/conc)^dsct*exp(dsct*n/(2*conc*(conc+n))) - conc/dsct
+  } else {
+    num <- seq(conc+dsct, conc+dsct+(n-1))
+    den <- seq(conc, conc+(n-1))
+    r <- conc/dsct*(prod(num/den)-1)
+  }
+  
+  return(r)
+}
+
+
+
+
+
 
