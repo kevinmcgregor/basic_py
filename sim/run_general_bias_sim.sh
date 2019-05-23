@@ -2,9 +2,9 @@
 #PBS -N hpy_bias
 #PBS -o log/
 #PBS -e log/
-#PBS -l mem=2G
-#PBS -l vmem=2G
-#PBS -l walltime=00:10:00
+#PBS -l mem=3G
+#PBS -l vmem=3G
+#PBS -l walltime=00:20:00
 #PBS -l nodes=1:ppn=10
 
 cd $PBS_O_WORKDIR

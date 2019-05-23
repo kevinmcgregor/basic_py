@@ -108,13 +108,14 @@ sample_local <- function(tab, dsct) {
   return(sample(t.t, 1, prob=p))
 }
 
-#' Get expected number of tables (based on approximation in Buntine paper)
+#' Get expected number of tables
 #' @note Buntine: "a" is discount, "b" is concentration
-#' @note Assumes n, concentration >> discount
+#' @note Approximation assumes n, concentration >> discount
 #' 
 #' @param n Positive integer specifying the sample size
 #' @param conc Concentration parameter.  Must be greater than -dsct
 #' @param dsct Discount parameter.  Must be between 0 and 1
+#' @param method Should the expectation be calculated using the approximate formula, or the (inefficient) exact formula?
 #'
 #' @return
 #' @export
@@ -123,18 +124,54 @@ sample_local <- function(tab, dsct) {
 expected_tables <- function(n, conc, dsct, method=c("approximate", "exact")) {
   method <- match.arg(method)
   if (method=="approximate") {
-    r <- conc/dsct*(1+n/conc)^dsct*exp(dsct*n/(2*conc*(conc+n))) - conc/dsct
+    r <- conc/dsct*((1+n/conc)^dsct*exp(dsct*n/(2*conc*(conc+n))) - 1)
   } else {
-    num <- seq(conc+dsct, conc+dsct+(n-1))
-    den <- seq(conc, conc+(n-1))
-    r <- conc/dsct*(prod(num/den)-1)
+    r <- conc/dsct*(poch_ratio(n, conc+dsct, conc) - 1)
+  }
+  
+  return(r)
+}
+
+#' Get variance for number of tables
+#' @note Approximation assumes n, concentration >> discount
+#'
+#' @param n Positive integer specifying the sample size
+#' @param conc Concentration parameter.  Must be greater than -dsct
+#' @param dsct Discount parameter.  Must be between 0 and 1
+#' @param method Should the variance be calculated using the approximate formula, or the (inefficient) exact formula?
+#'
+#' @return
+#' @export
+#'
+#' @examples
+var_tables <- function(n, conc, dsct, method=c("approximate", "exact")) {
+  method <- match.arg(method)
+  if (method=="approximate") {
+    r <- conc/dsct*(1+n/conc)^(2*dsct)*exp(dsct*n/(conc*(conc+n)))
+  } else {
+    poch1 <- poch_ratio(n, conc+dsct, conc)
+    cd <- conc/dsct
+    r <- cd*((conc+dsct)/dsct*poch_ratio(n, conc+2*dsct, conc) - poch1 - cd*poch1^2)
   }
   
   return(r)
 }
 
 
-
-
+#' Calculate the ratio of two Pochhammer symbols ("rising factorials") of same length
+#'
+#' @param n Number of terms in both numerator and denominator Pochhammer symbols
+#' @param num.start Starting value for numerator
+#' @param den.start Starting value for denominator
+#'
+#' @return
+#' @export
+#'
+#' @examples
+poch_ratio <- function(n, num.start, den.start) {
+  num <- seq(num.start, num.start+(n-1))
+  den <- seq(den.start, den.start+(n-1))
+  return(prod(num/den))
+}
 
 
