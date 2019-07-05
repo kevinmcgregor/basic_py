@@ -58,19 +58,23 @@ abline(h=expect.n.sp.lower.exact,col="red", lwd=3)
 boxplot(obs.n.sp.lower-expect.n.sp.lower.exact, col="lightblue")
 abline(h=0, col="red", lwd=3)
 
-# Comparing approximate vs. exact theoretical values for fixed N
+# Comparing approximate vs. exact theoretical expected values for fixed N
+# Also doing the same for variance
 n.fix <- 1000
 dsct.fix <- 0.5
-conc.vals <- seq(0.1, 20, by=0.1)
-approx.ev <- rep(0, length(conc.vals))
-exact.ev <- rep(0, length(conc.vals))
+conc.vals <- seq(100, 1000, by=1)
+approx.ev <- approx.var <- rep(0, length(conc.vals))
+exact.ev <- exact.var <- rep(0, length(conc.vals))
 for (v in 1:length(conc.vals)) {
   approx.ev[v] <- expected_tables(n.fix, conc.vals[v], dsct.fix)
   exact.ev[v] <- expected_tables(n.fix, conc.vals[v], dsct.fix, method="exact")
+  approx.var[v] <- var_tables(n.fix, conc.vals[v], dsct.fix)
+  exact.var[v] <- var_tables(n.fix, conc.vals[v], dsct.fix, method="exact")
 }
 
 rge.x <- range(exact.ev)
 plot(exact.ev, approx.ev, ylim=rge.x, type="l", lwd=3)
 abline(0, 1, lty=2, col="red", lwd=2)
-axis(3, at=seq(rge.x[1], rge.x[2], length.out = 5),
-     labels = conc.vals)
+
+rge.x <- range(exact.var)
+plot(exact.var, approx.var, type="l", lwd=3)

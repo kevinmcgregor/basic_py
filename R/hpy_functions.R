@@ -62,7 +62,15 @@ sample_hpy <- function(m, n, conc.top, dsct.top, conc, dsct, quiet=FALSE) {
   # Number of samples in top level
   n.samp <- sum(samp.top)
   
-  return(list(samp.pop=samp, samp.top=samp.top, tab=tab, t.tab=t.t, n.sp=n.s, n.samp=n.samp))
+  # Abundance table
+  abund <- matrix(0, m, n.s)
+  for (i in 1:m) {
+    for (j in 1:n.s) {
+      abund[i,j] <- sum(samp[[i]]==j)
+    }
+  }
+  
+  return(list(samp.pop=samp, samp.top=samp.top, tab=tab, t.tab=t.t, n.sp=n.s, n.samp=n.samp, abund=abund))
 }
 
 #' Sample from top-level process

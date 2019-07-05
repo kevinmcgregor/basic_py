@@ -15,8 +15,9 @@ n.n <- length(n.vals)
 n.c <- length(conc.vals)
 
 # Containers
-bias.top <- bias.local <- matrix(0, n.rep, n.n*n.c)
-bias.top.exact <- bias.local.exact <- matrix(0, n.rep, n.n*n.c)
+bias.top <- bias.local <- bias.var <- bias.var.local <- matrix(0, n.rep, n.n*n.c)
+bias.top.exact <- bias.local.exact <- bias.var.exact <- 
+                bias.var.local.exact <- matrix(0, n.rep, n.n*n.c)
 
 for (nn in 1:n.n) {
   cat("n =", n.vals[nn], "\n")
@@ -32,6 +33,12 @@ for (nn in 1:n.n) {
     bias.local[,ind] <- (obs.n.sp.lower - expect.n.sp.lower)/expect.n.sp.lower
     bias.top.exact[,ind] <- (obs.n.sp - expect.n.sp.exact)/expect.n.sp.exact
     bias.local.exact[,ind] <- (obs.n.sp.lower - expect.n.sp.lower.exact)/expect.n.sp.lower.exact
+    
+    # Bias of variance of number of tables
+    bias.var[,ind] <- (obs.var.n.sp - var.n.sp)/var.n.sp
+    bias.var.local[,ind] <- (obs.var.n.sp.lower - var.n.sp.lower)/var.n.sp.lower
+    bias.var.exact[,ind] <- (obs.var.n.sp- var.n.sp.exact)/var.n.sp.exact
+    bias.var.local.exact[,ind] <- (obs.var.n.sp.lower - var.n.sp.lower.exact)/var.n.sp.lower.exact
   }
 }
 
@@ -52,7 +59,19 @@ top.df$Bias <- c(bias.top)
 top.df.exact <- local.df
 top.df.exact$Bias <- c(bias.top.exact)
 
+local.var.df <- local.df
+local.var.df$Bias <- c(bias.var.local)
 
+local.var.df.exact <- local.df
+local.var.df.exact$Bias <- c(bias.var.local.exact)
+
+top.var.df <- local.df
+top.var.df$Bias <- c(bias.var)
+
+top.var.df.exact <- local.df
+top.var.df.exact$Bias <- c(bias.var.exact)
+
+# Plots for expected value
 plot.title.local = paste0("Local-level bias: approximate EV, ", "Discount = ", dsct.vals[1])
 local.plot = ggplot(local.df, aes(n, Bias, fill=Concentration)) + geom_boxplot() + #facet_wrap( ~ z*n.otu, ncol=2) + 
   theme_bw() +
@@ -80,6 +99,15 @@ top.plot.exact = ggplot(top.df.exact, aes(n, Bias, fill=Concentration)) + geom_b
   theme(legend.position = "bottom",text = element_text(size=20), axis.text.x = element_text(size=16,angle=0,vjust=1,hjust=0.5)) + 
   labs(title=plot.title.top.exact) +
   xlab("Number local samples") + ylab("(Normalized) Bias") + cowplot::panel_border()
+
+# Plots for variance
+plot.title.top.var.exact = paste0("Top-level bias: exact var, ", "Discount = ", dsct.vals[1])
+top.var.plot.exact = ggplot(top.var.df.exact, aes(n, Bias, fill=Concentration)) + geom_boxplot() + #facet_wrap( ~ z*n.otu, ncol=2) + 
+  theme_bw() +
+  theme(legend.position = "bottom",text = element_text(size=20), axis.text.x = element_text(size=16,angle=0,vjust=1,hjust=0.5)) + 
+  labs(title=plot.title.top.var.exact) +
+  xlab("Number local samples") + ylab("(Normalized) Bias") + cowplot::panel_border()
+
 
 # Saving plots
 ggsave(paste0(plot.dir,"/","bias_local.pdf"), 
