@@ -31,8 +31,16 @@ sample_hpy <- function(m, n, conc.top, dsct.top, conc, dsct, quiet=FALSE) {
   tab <- vector("list", length=m) # Container for tables in each population
   samp.top <- NULL # Samples for top-level process
   samp <- vector("list", length=m) # List to hold samples for each population
+
+  # TEMP
+  # for (i in 1:m) {
+  #   samp[[i]] <- rep(0, n[i])
+  # }
+  # ALSO TEMP... assumes same number of individ in all samples
+  # n.all <- n[1]
   
   # Loop through populations and samples in each population
+  #for (j in 1:n.all) {
   for (i in 1:m) {
     samp[[i]] <- rep(0, n[i])
     for (j in 1:n[i]) {
@@ -70,7 +78,16 @@ sample_hpy <- function(m, n, conc.top, dsct.top, conc, dsct, quiet=FALSE) {
     }
   }
   
-  return(list(samp.pop=samp, samp.top=samp.top, tab=tab, t.tab=t.t, n.sp=n.s, n.samp=n.samp, abund=abund))
+  # Number of tables of each species in each population
+  n.s.tab <- matrix(0, m, n.s)
+  for (i in 1:m) {
+    for (j in 1:n.s) {
+      n.s.tab[i,j] <- sum(tab[[i]][,1]==j)
+    }
+  }
+  
+  return(list(samp.pop=samp, samp.top=samp.top, tab=tab, 
+              t.tab=t.t, n.s.tab=n.s.tab, n.sp=n.s, n.samp=n.samp, abund=abund))
 }
 
 #' Sample from top-level process
@@ -94,7 +111,8 @@ sample_top <- function(samp, conc, dsct) {
   if (samp.new==1) {
     r <- t.t + 1
   } else {
-    r <- sample(t.t, 1, prob=samp/n.s)
+    t.probs <- samp - dsct
+    r <- sample(t.t, 1, prob=t.probs)
   }
   
   return(r)
@@ -112,7 +130,7 @@ sample_top <- function(samp, conc, dsct) {
 sample_local <- function(tab, dsct) {
   n.s <- sum(tab[,2])
   t.t <- NROW(tab)
-  p <- (tab[,2]-dsct)/(n.s-dsct*t.t)
+  p <- tab[,2]-dsct #/(n.s-dsct*t.t)
   return(sample(t.t, 1, prob=p))
 }
 
